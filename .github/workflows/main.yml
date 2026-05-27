@@ -9,20 +9,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Code checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Maven build
         run: mvn install
 
   testing:
     runs-on: ubuntu-latest
-    needs: build
+    needs: builds
     steps:
       - name: Code checkout
         uses: actions/checkout@v6
 
       - name: Maven test
-        run: mvn test
+        run: maven test
 
       - name: Checkstyle
         run: mvn checkstyle:checkstyle
