@@ -1,11 +1,20 @@
 name: Build WF
 
 on:
-  #push:
-  #  branches: [ "main" ]
+  push:
+    branches: [ "main" ]
 
   pull_request:
     branches: [ "main" ]
+
+  workflow_dispatch:
+  
+  schedule:
+    - cron: "10 14 * * 1-5" # Every weekday at 14:10 UTC (9:10 AM EST)
+
+# Set permissions for the workflow. This workflow only needs read access to the repository contents.
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -17,7 +26,19 @@ jobs:
       - name: Maven build
         run: mvn install
 
+      - name: Upload build artifacts (WAR file)
+        uses: actions/upload-artifact@v7
+        with:
+          name: vprofile-app
+          path: target/*.war
+
+      - name: Notify build fails
+        if: ${{ failure() }}
+        run: echo "Build failed! Please check the logs for details."
+
   testing:
+    # Only run tests if the build job succeeded and we're on the main branch
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -29,3 +50,7 @@ jobs:
 
       - name: Checkstyle
         run: mvn checkstyle:checkstyle
+
+      - name: Run tests in other branches
+        if: ${{ github.ref != 'refs/heads/main' }}
+        run: echo "Tests skipped! Only runs on the main branch."
