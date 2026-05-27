@@ -61,9 +61,6 @@ jobs:
       - name: Code checkout
         uses: actions/checkout@v6
 
-      - name: Run OWASP Dependency Check
-        run: mvn org.owasp:dependency-check-maven:check
-
       - name: Run trivy filesystem scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
